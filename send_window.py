@@ -1,8 +1,8 @@
-import  Spam_report as spam
+
 import Send_msg as send_msg
-import Get_msg as get
+from Encryptors import Encrypt_Cezar
 from Home import*
-import Home
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
@@ -31,19 +31,17 @@ class Ui_SendWindow(object):
 
         self.composeButton = QtWidgets.QPushButton(self.centralwidget)
         self.composeButton.setGeometry(QtCore.QRect(40, 240, 221, 71))
-        self.composeButton.setText("compose")
+        self.composeButton.setText("COMPOSE")
 
         self.homeButton = QtWidgets.QPushButton(self.centralwidget)
         self.homeButton.setGeometry(QtCore.QRect(40, 330, 221, 71))
-        self.homeButton.setText('Home')
+        self.homeButton.setText('HOME')
         self.homeButton.clicked.connect(self.home_window)
 
         self.scanButton = QtWidgets.QPushButton(self.centralwidget)
         self.scanButton.setGeometry(QtCore.QRect(40, 420, 221, 71))
         self.scanButton.setText("SCAN")
         self.scanButton.clicked.connect(self.home_window)
-        #report = spam.spam_report(full_emails)
-        #self.scanButton.clicked.connect(lambda: Home.scan(report))
 
         self.trashButton = QtWidgets.QPushButton(self.centralwidget)
         self.trashButton.setGeometry(QtCore.QRect(40, 510, 221, 61))
@@ -57,18 +55,23 @@ class Ui_SendWindow(object):
                                                            self.subjectTextEdit.toPlainText(),
                                                            self.msgTextEdit.toPlainText())))
 
-        self.encdecButton = QtWidgets.QPushButton(self.centralwidget)
-        self.encdecButton.setGeometry(QtCore.QRect(790, 40, 181, 41))
-        self.encdecButton.setText("Encrypt")
+        self.encButton = QtWidgets.QPushButton(self.centralwidget)
+        self.encButton.setGeometry(QtCore.QRect(790, 40, 181, 41))
+        self.encButton.setText("Encrypt")
+        self.encButton.clicked.connect(lambda: self.encrypt(self.msgTextEdit.toPlainText()))
 
+
+        # message body
         self.msgTextEdit = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.msgTextEdit.setGeometry(QtCore.QRect(310, 190, 891, 381))
         self.msgTextEdit.setPlainText(msg)
 
+        # recipient
         self.toTextEdit = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.toTextEdit.setGeometry(QtCore.QRect(310, 20, 291, 61))
         self.toTextEdit.setPlainText(str(to))
 
+        #  Subject
         self.subjectTextEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.subjectTextEdit.setGeometry(QtCore.QRect(310, 90, 291, 61))
         self.subjectTextEdit.setPlainText(subject)
@@ -81,6 +84,18 @@ class Ui_SendWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+    def encrypt(self, msg):
+       '''encrypts msg'''
+
+       encrypted_msg = ''
+       encrypted_msg, key = Encrypt_Cezar(msg)
+       print(encrypted_msg)
+       #key will be added to the end of the msg
+       self.msgTextEdit.setPlainText(encrypted_msg+str(key))
+
+    def decrypt(self, msg):
+        '''decrypts msg'''
+        pass
 
 
 if __name__ == "__main__":

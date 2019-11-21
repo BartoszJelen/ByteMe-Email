@@ -3,27 +3,32 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import  Spam_report as spam
 import Get_msg as get
 from send_window import*
-from warning import*
-#from send_window import Ui_SendWindow
+import Encryptors
 
-class Ui_HomeWindow(object ):
+
+
+class Ui_HomeWindow:
 
 
     def send_widnow(self, to = 'TO:', subject = 'SUBJECT: ', msg = 'Type msg here'):
+        '''opens send window'''
 
         self.window = QtWidgets.QMainWindow()
+        # Ui_SendWindow imported from send_window
         self.ui = Ui_SendWindow()
         self.ui.setupUi(self.window, to, subject, msg)
         self.window.show()
 
 
     def home_window(self):
+        ''' creates home window'''
+
         self.listWidget.clear()
         self.listWidget.addItem('YOUR NEW MESSAGES (double click to open message)\n')
 
+        # import messages
         for sender in self.senders_list:
             self.item = QtWidgets.QListWidget()
-            # print(sender)
             self.listWidget.addItem(sender)
 
         for i in range(self.listWidget.count()):
@@ -37,18 +42,20 @@ class Ui_HomeWindow(object ):
         self.forwordButton.hide()
 
     def warning(self):
-        print('war')
+        ''' creates warrning window form Ui_warrning class (end of the code)'''
+
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_warning()
         self.ui.setupUi(self.window)
         self.window.show()
 
     def scan(self, spam_report):
-        print("scanning")
+        '''creates scan report window'''
+
         self.listWidget.clear()
         self.listWidget.addItem(spam_report)
         # BUG NO DEFULT BEHAVIOR RESTORED AFTER
-        self.listWidget.itemClicked.connect(self.warning )
+        self.listWidget.itemClicked.connect(self.warning)
 
 
         self.replyButton.hide()
@@ -56,7 +63,8 @@ class Ui_HomeWindow(object ):
         self.forwordButton.hide()
 
     def show_message(self):
-        ### prnt for test only
+        '''updates home window with selected message'''
+
         print(self.listWidget.currentItem().text())
         current_item = self.listWidget.currentItem().text()
         key = current_item[-4:]
@@ -71,11 +79,32 @@ class Ui_HomeWindow(object ):
         self.decryptButton.show()
         self.replyButton.show()
 
+        # ACTIONS
         self.replyButton.clicked.connect(lambda: self.send_widnow(current_item))
         self.forwordButton.clicked.connect(lambda: self.send_widnow('TO: ', "RE: ", msg) )
+        self.decryptButton.clicked.connect(lambda: decrypt(msg))
 
+        def decrypt(msg):
+            '''decrypts message'''
+            try:
+                key_from_msg = msg.strip()
+                key1 = key_from_msg[-1]
+                key1 = int(key1)
+
+                decrypted_msg = Encryptors.Decrypt_Cezar(key1, msg)
+                decrypted_msg = decrypted_msg.strip()
+                decrypted_msg = decrypted_msg[0:-1]
+                self.listWidget.clear()
+                self.listWidget.addItem("Message from: " + current_item + "\n\n" + decrypted_msg)
+            except:
+                ''' implement pop window here '''
+                print("sth went wrong")
+
+            #self.listWidget.addItem("Message from: " + current_item + "\n\n" + decrypted_msg)
 
     def setupUi(self, MainWindow):
+        '''home window / main function'''
+
         global senders_list, topic_list, email_dic, date_list, full_emails
 
         # get EMAIL headers
@@ -138,11 +167,11 @@ class Ui_HomeWindow(object ):
 
         self.timeEdit = QtWidgets.QTimeEdit(self.centralwidget)
         self.timeEdit.setGeometry(QtCore.QRect(1000, 20, 118, 28))
-        #self.timeEdit.setTime()
 
         self.listWidget = QtWidgets.QListWidget(self.centralwidget)
         self.listWidget.setGeometry(QtCore.QRect(320, 80, 891, 525))
 
+        # show message on double click
         self.listWidget.itemDoubleClicked.connect(self.show_message)
 
         #add Emails to list
@@ -164,6 +193,53 @@ class Ui_HomeWindow(object ):
         # --------------------------------------------------------------------------
 
 
+# EXTENDS HOME WINDOW CLASS
+class Ui_warning(Ui_HomeWindow):
+
+    def move_to_trash(self):
+        ''' moves msg to trash'''
+        pass
+
+    def show_message_scan(self):
+        '''opens home window '''
+
+        pass
+
+    def setupUi(self, warning):
+        warning.setObjectName("warning")
+        warning.resize(470, 161)
+        warning.setAutoFillBackground(False)
+        self.centralwidget = QtWidgets.QWidget(warning)
+        self.centralwidget.setObjectName("centralwidget")
+
+        self.trashButton = QtWidgets.QPushButton(self.centralwidget)
+        self.trashButton.setGeometry(QtCore.QRect(110, 110, 88, 27))
+        self.trashButton.setText("Trash")
+        self.trashButton.clicked.connect(self.move_to_trash)
+
+        self.openButton = QtWidgets.QPushButton(self.centralwidget)
+        self.openButton.setGeometry(QtCore.QRect(260, 110, 88, 27))
+        self.openButton.setText("Open")
+        self.openButton.clicked.connect(self.show_message_scan)
+
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setGeometry(QtCore.QRect(130, 0, 191, 61))
+        font = QtGui.QFont()
+        font.setPointSize(28)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label.setFont(font)
+        self.label.setText("WARNING")
+
+        self.label_2 = QtWidgets.QLabel(self.centralwidget)
+        self.label_2.setGeometry(QtCore.QRect(110, 60, 221, 41))
+        self.label_2.setText("This message may contain a virus")
+
+        warning.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(warning)
+        self.statusbar.setObjectName("statusbar")
+        warning.setStatusBar(self.statusbar)
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -172,4 +248,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-
