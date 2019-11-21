@@ -2,7 +2,7 @@ import math as m
 from random import randint
 
 def Encrypt_Cezar(text = "abc", key = 777):
-    ''' Encrypt_Cezar is a function takes 1 argument string, and returns text encrypted by Cezar. If no argument passed, default argument  = "abc" Rot 1'''
+    ''' Encrypt_Cezar is a function takes 1 argument string, and returns text encrypted in Cezar cipher. If no argument passed, default argument  = "abc" Rot 1'''
 
     encrypted_str = text
     if key == 777:
@@ -27,6 +27,7 @@ def Encrypt_Cezar(text = "abc", key = 777):
 
 
 def Decrypt_Cezar(key, message):
+    ''' function decrypts cezar cypher  req. @param (key, msg) 
     message = message.upper()
     alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     result = ""
